@@ -1,26 +1,16 @@
-// Initialize Lenis for smooth scrolling
-const lenis = new Lenis({
-    duration: 1.2,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
-    direction: 'vertical',
-    gestureDirection: 'vertical',
-    smooth: true,
-    mouseMultiplier: 1,
-    smoothTouch: false,
-    touchMultiplier: 2,
-    infinite: false,
-})
-
-// Integrate Lenis with GSAP ScrollTrigger
+// Register ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
-lenis.on('scroll', ScrollTrigger.update)
+// Initialize Lenis for smooth scrolling
+const lenis = new Lenis();
+
+lenis.on('scroll', ScrollTrigger.update);
 
 gsap.ticker.add((time)=>{
-  lenis.raf(time * 1000)
-})
+  lenis.raf(time * 1000);
+});
 
-gsap.ticker.lagSmoothing(0)
+gsap.ticker.lagSmoothing(0);
 
 // Navbar scroll effect
 const navbar = document.getElementById('navbar');
@@ -45,8 +35,9 @@ heroTl.from(".greeting", { y: 30, opacity: 0, delay: 0.2 })
 // Skills Section
 gsap.from(".skill-card", {
     scrollTrigger: {
-        trigger: ".skills",
-        start: "top 75%",
+        trigger: ".skills-grid",
+        start: "top 85%", // Trigger earlier when scrolling down
+        toggleActions: "play none none none"
     },
     y: 50,
     opacity: 0,
@@ -58,8 +49,9 @@ gsap.from(".skill-card", {
 // Projects Section
 gsap.from(".project-card", {
     scrollTrigger: {
-        trigger: ".projects",
-        start: "top 70%",
+        trigger: ".projects-grid",
+        start: "top 85%",
+        toggleActions: "play none none none"
     },
     y: 100,
     opacity: 0,
