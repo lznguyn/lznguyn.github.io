@@ -1,5 +1,5 @@
 // --- Animations ---
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
     // Register ScrollTrigger
     gsap.registerPlugin(ScrollTrigger);
 
@@ -21,32 +21,36 @@ document.addEventListener("DOMContentLoaded", () => {
           .from(".bio", { y: 20, opacity: 0 }, "-=0.6")
           .from(".hero-content .cta-group", { y: 20, opacity: 0 }, "-=0.6");
 
-    // Skills Section
-    gsap.from(".skill-card", {
-        scrollTrigger: {
-            trigger: ".skills",
-            start: "top 80%", // Trigger when top of section hits 80% viewport height
-            toggleActions: "play none none none"
-        },
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: "back.out(1.7)"
+    // Skills Section - trigger on each card
+    gsap.utils.toArray(".skill-card").forEach((card, i) => {
+        gsap.from(card, {
+            scrollTrigger: {
+                trigger: card,
+                start: "top 90%", // Trigger when top of card hits 90% viewport height
+                toggleActions: "play none none reverse"
+            },
+            y: 50,
+            opacity: 0,
+            duration: 0.8,
+            ease: "back.out(1.7)",
+            delay: (i % 4) * 0.15 // Stagger effect based on grid column
+        });
     });
 
-    // Projects Section
-    gsap.from(".project-card", {
-        scrollTrigger: {
-            trigger: ".projects",
-            start: "top 80%",
-            toggleActions: "play none none none"
-        },
-        y: 100,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.2,
-        ease: "power4.out"
+    // Projects Section - trigger on each card
+    gsap.utils.toArray(".project-card").forEach((card, i) => {
+        gsap.from(card, {
+            scrollTrigger: {
+                trigger: card,
+                start: "top 85%",
+                toggleActions: "play none none reverse"
+            },
+            y: 100,
+            opacity: 0,
+            duration: 1,
+            ease: "power4.out",
+            delay: (i % 3) * 0.2
+        });
     });
 
     // Background Parallax
@@ -73,4 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         x: -100,
         ease: "none"
     });
+    
+    // Refresh ScrollTrigger after all initial animations and setup
+    ScrollTrigger.refresh();
 });
