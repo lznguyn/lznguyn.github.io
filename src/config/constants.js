@@ -6,6 +6,9 @@ export const HSK_LEVELS = {
   HSK4: { level: 4, name: 'HSK 4', words: 1200, description: 'Intermediate' },
   HSK5: { level: 5, name: 'HSK 5', words: 2500, description: 'Advanced' },
   HSK6: { level: 6, name: 'HSK 6', words: 5000, description: 'Mastery' },
+  HSK7: { level: 7, name: 'HSK 7', words: 8000, description: 'Professional' },
+  HSK8: { level: 8, name: 'HSK 8', words: 12000, description: 'Expert' },
+  HSK9: { level: 9, name: 'HSK 9', words: 20000, description: 'Mastery Elite' },
 };
 
 // Learning modes
