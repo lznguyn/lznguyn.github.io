@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chinese Language Learning App</title>
+  <meta name="description" content="Learn Chinese at your own pace with HSK levels, interactive lessons, and quizzes.">
+  <link rel="stylesheet" href="src/presentation/styles/index.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Navigation -->
+    <nav class="app-navbar">
+      <div class="nav-content">
+        <h1 class="app-title">汉语学习 (Chinese Learning)</h1>
+        <div class="nav-links">
+          <button class="btn-text" id="btnProgress">My Progress</button>
+          <button class="btn-text" id="btnSettings">Settings</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="app-content">
+      <!-- Level Selection View -->
+      <div id="level-container" class="view-container"></div>
+
+      <!-- Lessons Container -->
+      <div id="lessons-container" class="view-container" style="display: none;"></div>
+
+      <!-- Lesson View -->
+      <div id="lesson-container" class="view-container" style="display: none;"></div>
+
+      <!-- Quiz View -->
+      <div id="quiz-container" class="view-container" style="display: none;"></div>
+
+      <!-- Progress Tracker -->
+      <div id="progress-container" class="view-container" style="display: none;"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2024 Chinese Learning App. Learn Chinese with ease!</p>
+    </footer>
+  </div>
+
+  <script type="module" src="src/presentation/app.js"></script>
+</body>
+
+</html>
