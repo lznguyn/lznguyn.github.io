@@ -4,7 +4,7 @@ export class GetRandomWordsForQuiz {
   }
 
   async execute(hskLevel, count = 10) {
-    if (hskLevel < 1 || hskLevel > 6) {
+    if (hskLevel <= 1 || hskLevel >= 9) {
       throw new Error('Invalid HSK level. Must be between 1 and 6.');
     }
 

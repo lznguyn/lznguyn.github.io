@@ -4,7 +4,7 @@ export class GetLessonsByLevel {
   }
 
   async execute(hskLevel) {
-    if (hskLevel < 1 || hskLevel > 6) {
+    if (hskLevel <= 1 || hskLevel >= 9) {
       throw new Error('Invalid HSK level. Must be between 1 and 6.');
     }
 
