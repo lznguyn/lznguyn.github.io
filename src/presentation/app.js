@@ -77,6 +77,7 @@ export class ChineseLearningApp {
     this.levelSelector.hide();
     this.lessonView.hide();
     this.quizView.hide();
+    document.getElementById('lessons-container').style.display = 'block';
     this.renderLessonSelection();
   }
 
