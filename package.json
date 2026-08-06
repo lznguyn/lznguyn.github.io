@@ -1,0 +1,25 @@
+{
+  "name": "chinese-learning-app",
+  "version": "1.0.0",
+  "description": "A Chinese language learning application with HSK levels and API integration",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "http-server . -p 8080",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "chinese",
+    "learning",
+    "hsk",
+    "language",
+    "education"
+  ],
+  "author": "Pham Trung Nguyen",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.0"
+  }
+}
