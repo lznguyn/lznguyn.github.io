@@ -9,6 +9,12 @@ Chinese Language Learning App - A Clean Architecture web application for learnin
 - **Storage**: Browser LocalStorage for user progress
 - **Data Source**: Mock data (can be replaced with real API)
 
+## Backend (.NET)
+- `backend/` holds an ASP.NET Core (.NET 8) Clean Architecture API: Domain, Application, Infrastructure (EF Core + SQLite), Api.
+- The JS frontend talks to it via `ApiDataSource` (`http://localhost:5000/api`, set in `src/presentation/app.js`).
+- See `backend/README.md` for run commands and endpoints. Run tests with `dotnet test backend`.
+- User progress is still stored in LocalStorage by the frontend; the API's `/users/{userId}/progress` endpoints are not wired in yet.
+
 ## Technology Stack
 - Vanilla JavaScript (ES6+)
 - HTML5
@@ -32,8 +38,8 @@ src/
 ## Key Files to Edit
 
 ### Add New Lessons/Words
-- File: `src/data/datasources/MockDataSource.js`
-- The `mockWords` and `mockLessons` objects contain data
+- File: `backend/src/ChineseLearning.Infrastructure/Persistence/DbSeeder.cs`
+- Delete `chinese-learning.db` afterwards so the database is re-seeded
 
 ### Modify UI
 - Components: `src/presentation/components/`
@@ -43,15 +49,15 @@ src/
 - Use Cases: `src/domain/usecases/`
 - Entities: `src/domain/entities/`
 
-### Connect Real API
+### Change API URL
 - File: `src/presentation/app.js` (line: `initializeDependencies`)
-- Change: `new MockDataSource()` to `new ApiDataSource('your-api-url')`
+- Change the base URL passed to `new ApiDataSource(...)`
 
 ## Common Tasks
 
 ### Task: Add a new HSK level
 1. Update `HSK_LEVELS` in `src/config/constants.js`
-2. Add data to `MockDataSource.js`
+2. Add data to `DbSeeder.cs` in the backend
 
 ### Task: Add new quiz types
 1. Extend `QuizView.js` to support new question formats

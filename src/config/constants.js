@@ -1,15 +1,18 @@
 // HSK Levels Definition
 export const HSK_LEVELS = {
-  HSK1: { level: 1, name: 'HSK 1', words: 150, description: 'Beginner' },
-  HSK2: { level: 2, name: 'HSK 2', words: 300, description: 'Elementary' },
-  HSK3: { level: 3, name: 'HSK 3', words: 600, description: 'Pre-intermediate' },
-  HSK4: { level: 4, name: 'HSK 4', words: 1200, description: 'Intermediate' },
-  HSK5: { level: 5, name: 'HSK 5', words: 2500, description: 'Advanced' },
-  HSK6: { level: 6, name: 'HSK 6', words: 5000, description: 'Mastery' },
-  HSK7: { level: 7, name: 'HSK 7', words: 8000, description: 'Professional' },
-  HSK8: { level: 8, name: 'HSK 8', words: 12000, description: 'Expert' },
-  HSK9: { level: 9, name: 'HSK 9', words: 20000, description: 'Mastery Elite' },
+  HSK1: { level: 1, name: 'HSK 1', zh: '一级', words: 150, description: 'Beginner' },
+  HSK2: { level: 2, name: 'HSK 2', zh: '二级', words: 300, description: 'Elementary' },
+  HSK3: { level: 3, name: 'HSK 3', zh: '三级', words: 600, description: 'Pre-intermediate' },
+  HSK4: { level: 4, name: 'HSK 4', zh: '四级', words: 1200, description: 'Intermediate' },
+  HSK5: { level: 5, name: 'HSK 5', zh: '五级', words: 2500, description: 'Advanced' },
+  HSK6: { level: 6, name: 'HSK 6', zh: '六级', words: 5000, description: 'Mastery' },
+  HSK7: { level: 7, name: 'HSK 7', zh: '七级', words: 8000, description: 'Professional' },
+  HSK8: { level: 8, name: 'HSK 8', zh: '八级', words: 12000, description: 'Expert' },
+  HSK9: { level: 9, name: 'HSK 9', zh: '九级', words: 20000, description: 'Mastery Elite' },
 };
+
+export const MIN_HSK_LEVEL = 1;
+export const MAX_HSK_LEVEL = 9;
 
 // Learning modes
 export const LEARNING_MODES = {

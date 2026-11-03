@@ -1,3 +1,9 @@
+import { escapeHtml, shuffle } from '../../utils/html.js';
+import { colorizePinyin } from '../../utils/pinyin.js';
+import { speakChinese, speechSupported } from '../../utils/speech.js';
+
+const MAX_OPTIONS = 4;
+
 export class QuizView {
   constructor(container) {
     this.container = container;
@@ -8,14 +14,11 @@ export class QuizView {
     this.onQuizComplete = null;
   }
 
-  generateQuestions(words) {
-    this.questions = words.map((word, index) => ({
-      id: word.id,
-      question: `What is the English meaning of "${word.chinese}"?`,
-      correct: word.english,
-      chinese: word.chinese,
-      options: this.generateOptions(word, words),
-    }));
+  // words: what is being tested. pool: wider set of words used to pick wrong answers.
+  generateQuestions(words, pool = words) {
+    this.questions = words.map((word, index) =>
+      this.buildQuestion(word, index % 2 === 0 ? 'zh-to-en' : 'en-to-zh', pool)
+    );
 
     this.currentQuestionIndex = 0;
     this.score = 0;
@@ -23,46 +26,63 @@ export class QuizView {
     this.render();
   }
 
-  generateOptions(correctWord, allWords) {
-    const correct = correctWord.english;
-    const options = [correct];
+  buildQuestion(word, type, pool) {
+    const key = type === 'zh-to-en' ? 'english' : 'chinese';
+    const toOption = w => ({ value: w[key], pinyin: w.pinyin });
 
-    while (options.length < 4) {
-      const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
-      if (!options.includes(randomWord.english)) {
-        options.push(randomWord.english);
-      }
-    }
+    // Distinct wrong answers only; with a small pool there may be fewer than 3, which is fine.
+    const seen = new Set([word[key]]);
+    const wrong = shuffle(pool).filter(w => !seen.has(w[key]) && seen.add(w[key])).slice(0, MAX_OPTIONS - 1);
 
-    return options.sort(() => Math.random() - 0.5);
+    return {
+      id: word.id,
+      type,
+      word,
+      correct: word[key],
+      options: shuffle([toOption(word), ...wrong.map(toOption)]),
+    };
   }
 
   render() {
     this.container.innerHTML = '';
     const question = this.questions[this.currentQuestionIndex];
-    const progress = Math.round(((this.currentQuestionIndex + 1) / this.questions.length) * 100);
+    const total = this.questions.length;
+    const progress = Math.round((this.currentQuestionIndex / total) * 100);
+    const { word } = question;
+    const showPinyinInOptions = question.type === 'en-to-zh';
+
+    const prompt = question.type === 'zh-to-en'
+      ? `
+        <p class="question-label">What does this word mean?</p>
+        <div class="word-chinese" lang="zh-CN">${escapeHtml(word.chinese)}</div>
+        <div class="word-pinyin">${colorizePinyin(word.pinyin)}</div>
+        ${speechSupported ? `<button class="btn-audio" id="btnSpeak" type="button" aria-label="Play pronunciation">&#128266; Listen</button>` : ''}`
+      : `
+        <p class="question-label">Which word means&hellip;</p>
+        <div class="question-meaning">&ldquo;${escapeHtml(word.english)}&rdquo;</div>`;
 
     const content = document.createElement('div');
     content.className = 'quiz-view';
     content.innerHTML = `
       <div class="quiz-header">
-        <div class="progress-bar">
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}">
           <div class="progress-fill" style="width: ${progress}%"></div>
         </div>
-        <p class="progress-text">${this.currentQuestionIndex + 1} / ${this.questions.length}</p>
+        <p class="progress-text">Question ${this.currentQuestionIndex + 1} of ${total} &middot; Score ${this.score}</p>
       </div>
 
       <div class="question-card">
-        <h3>${question.question}</h3>
-        <div class="options">
+        ${prompt}
+        <div class="options ${showPinyinInOptions ? 'options-zh' : ''}">
           ${question.options.map((option, idx) => `
-            <button class="option-btn" data-index="${idx}">${option}</button>
+            <button class="option-btn" type="button" data-index="${idx}">
+              <span class="option-text" ${showPinyinInOptions ? 'lang="zh-CN"' : ''}>${escapeHtml(option.value)}</span>
+              ${showPinyinInOptions ? `<span class="option-pinyin">${colorizePinyin(option.pinyin)}</span>` : ''}
+            </button>
           `).join('')}
         </div>
-      </div>
-
-      <div class="quiz-info">
-        <p>Score: <span class="score-value">${this.score}/${this.questions.length}</span></p>
+        <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+        <div class="quiz-next" id="quizNext"></div>
       </div>
     `;
 
@@ -71,45 +91,84 @@ export class QuizView {
   }
 
   attachEventListeners(question) {
-    const buttons = this.container.querySelectorAll('.option-btn');
+    this.container.querySelector('#btnSpeak')?.addEventListener('click', () => speakChinese(question.word.chinese));
+
+    const buttons = [...this.container.querySelectorAll('.option-btn')];
     buttons.forEach((btn, idx) => {
-      btn.addEventListener('click', () => {
-        const selectedAnswer = question.options[idx];
-        this.answers.push({
-          questionId: question.id,
-          selected: selectedAnswer,
-          correct: question.correct,
-          isCorrect: selectedAnswer === question.correct,
-        });
-
-        if (selectedAnswer === question.correct) {
-          this.score++;
-        }
-
-        if (this.currentQuestionIndex < this.questions.length - 1) {
-          this.currentQuestionIndex++;
-          this.render();
-        } else {
-          this.showResults();
-        }
-      });
+      btn.addEventListener('click', () => this.answer(question, buttons, idx));
     });
+  }
+
+  answer(question, buttons, idx) {
+    const selected = question.options[idx].value;
+    const isCorrect = selected === question.correct;
+
+    this.answers.push({ questionId: question.id, word: question.word, selected, correct: question.correct, isCorrect });
+    if (isCorrect) this.score++;
+
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (question.options[i].value === question.correct) btn.classList.add('is-correct');
+      else if (i === idx) btn.classList.add('is-wrong');
+    });
+
+    const { word } = question;
+    const answerLine = `<span lang="zh-CN">${escapeHtml(word.chinese)}</span> (${colorizePinyin(word.pinyin)}) &mdash; ${escapeHtml(word.english)}`;
+    const feedback = this.container.querySelector('#feedback');
+    feedback.className = `feedback ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
+    feedback.innerHTML = `<strong>${isCorrect ? 'Correct!' : 'Not quite.'}</strong> ${answerLine}`;
+
+    const isLast = this.currentQuestionIndex === this.questions.length - 1;
+    const nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'btn-primary';
+    nextBtn.innerHTML = isLast ? 'See results' : 'Next question &rarr;';
+    nextBtn.addEventListener('click', () => {
+      if (isLast) {
+        this.showResults();
+      } else {
+        this.currentQuestionIndex++;
+        this.render();
+      }
+    });
+    this.container.querySelector('#quizNext').appendChild(nextBtn);
+    nextBtn.focus();
   }
 
   showResults() {
     this.container.innerHTML = '';
-    const percentage = Math.round((this.score / this.questions.length) * 100);
+    const total = this.questions.length;
+    const percentage = Math.round((this.score / total) * 100);
+    const missed = this.answers.filter(a => !a.isCorrect);
+
+    const verdict = percentage >= 80 ? 'Excellent work!' : percentage >= 60 ? 'Good job, keep practising.' : 'Review the words below and try again.';
 
     const results = document.createElement('div');
     results.className = 'quiz-results';
     results.innerHTML = `
-      <h2>Quiz Complete!</h2>
+      <h2>Quiz complete</h2>
       <div class="results-score">
-        <div class="score-circle">${percentage}%</div>
-        <p>${this.score} / ${this.questions.length} correct</p>
+        <div class="score-circle ${percentage >= 60 ? 'is-pass' : 'is-fail'}">${percentage}%</div>
+        <p>${this.score} / ${total} correct &middot; ${verdict}</p>
       </div>
-      <button class="btn-primary" id="btnRetry">Try Again</button>
-      <button class="btn-secondary" id="btnExit">Back to Lessons</button>
+
+      ${missed.length ? `
+        <div class="review-list">
+          <h3>Words to review</h3>
+          <ul>
+            ${missed.map(a => `
+              <li>
+                <span class="review-zh" lang="zh-CN">${escapeHtml(a.word.chinese)}</span>
+                <span class="review-pinyin">${colorizePinyin(a.word.pinyin)}</span>
+                <span class="review-en">${escapeHtml(a.word.english)}</span>
+              </li>`).join('')}
+          </ul>
+        </div>` : ''}
+
+      <div class="results-actions">
+        <button class="btn-primary" id="btnRetry" type="button">Try again</button>
+        <button class="btn-secondary" id="btnExit" type="button">Save &amp; back to lessons</button>
+      </div>
     `;
 
     this.container.appendChild(results);
@@ -117,20 +176,13 @@ export class QuizView {
   }
 
   attachResultsListeners() {
-    const btnRetry = this.container.querySelector('#btnRetry');
-    const btnExit = this.container.querySelector('#btnExit');
-
-    if (btnRetry) {
-      btnRetry.addEventListener('click', () => {
-        if (this.onQuizComplete) this.onQuizComplete(this.score, this.questions.length, true);
-      });
-    }
-
-    if (btnExit) {
-      btnExit.addEventListener('click', () => {
-        if (this.onQuizComplete) this.onQuizComplete(this.score, this.questions.length, false);
-      });
-    }
+    const total = this.questions.length;
+    this.container.querySelector('#btnRetry')?.addEventListener('click', () => {
+      if (this.onQuizComplete) this.onQuizComplete(this.score, total, true);
+    });
+    this.container.querySelector('#btnExit')?.addEventListener('click', () => {
+      if (this.onQuizComplete) this.onQuizComplete(this.score, total, false);
+    });
   }
 
   show() {

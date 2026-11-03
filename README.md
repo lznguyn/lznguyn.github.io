@@ -35,13 +35,11 @@ src/
 │   │   ├── LessonRepository.js
 │   │   └── UserProgressRepository.js
 │   ├── datasources/          # External API & local storage access
-│   │   ├── MockDataSource.js     # Mock data for development
-│   │   └── ApiDataSource.js      # Real API integration
+│   │   └── ApiDataSource.js      # Calls the ASP.NET Core API in /backend
 │   └── models/               # Data models/DTOs
 │
 ├── utils/                     # Helper Functions
-│   ├── formatters.js         # Formatting utilities
-│   └── validators.js         # Validation utilities
+│   └── formatters.js         # Formatting utilities
 │
 └── config/                    # Configuration
     └── constants.js          # App constants & config
@@ -138,7 +136,7 @@ const dataSource = new ApiDataSource('https://your-api.com');
 ```
 
 ### Add More Lessons
-Edit `src/data/datasources/MockDataSource.js` to add:
+Edit the seed data in `backend/src/ChineseLearning.Infrastructure/Persistence/DbSeeder.cs` (delete `chinese-learning.db` to re-seed) to add:
 - New lessons
 - New words
 - New quiz questions

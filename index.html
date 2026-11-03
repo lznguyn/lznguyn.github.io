@@ -4,26 +4,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chinese Language Learning App</title>
-  <meta name="description" content="Learn Chinese at your own pace with HSK levels, interactive lessons, and quizzes.">
+  <title>HSK Study - Learn Chinese</title>
+  <meta name="description" content="Learn Chinese at your own pace with HSK levels, flashcards with pinyin tones, and quizzes.">
   <link rel="stylesheet" href="src/presentation/styles/index.css">
 </head>
 
 <body>
   <div class="app-container">
     <!-- Navigation -->
-    <nav class="app-navbar">
+    <header class="app-navbar">
       <div class="nav-content">
-        <h1 class="app-title">汉语学习 (Chinese Learning)</h1>
-        <div class="nav-links">
-          <button class="btn-text" id="btnProgress">My Progress</button>
-          <button class="btn-text" id="btnSettings">Settings</button>
-        </div>
+        <button class="app-title" id="btnHome" type="button" aria-label="Go to home">
+          <span class="app-title-zh" lang="zh-CN">汉语学习</span>
+          <span class="app-title-sub">HSK Study</span>
+        </button>
+        <nav class="nav-links" aria-label="Main">
+          <button class="btn-text" id="btnLevels" type="button">Levels</button>
+          <button class="btn-text" id="btnProgress" type="button">My Progress</button>
+        </nav>
       </div>
-    </nav>
+    </header>
 
     <!-- Main Content -->
     <main class="app-content">
+      <div id="app-message" class="app-message" role="status" hidden></div>
+
       <!-- Level Selection View -->
       <div id="level-container" class="view-container"></div>
 
@@ -42,7 +47,7 @@
 
     <!-- Footer -->
     <footer class="app-footer">
-      <p>&copy; 2024 Chinese Learning App. Learn Chinese with ease!</p>
+      <p>HSK Study &mdash; learn a little every day.</p>
     </footer>
   </div>
 

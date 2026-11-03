@@ -17,12 +17,15 @@ export class UserProgress {
   }
 
   completeLesson(lessonId, score) {
-    this.completedLessons.push({
-      lessonId,
-      score,
-      completedDate: new Date(),
-    });
-    this.totalScore += score;
+    // One entry per lesson: retaking a lesson keeps the best score instead of inflating the count.
+    const existing = this.completedLessons.find(c => c.lessonId === lessonId);
+    if (existing) {
+      existing.score = Math.max(existing.score, score);
+      existing.completedDate = new Date();
+    } else {
+      this.completedLessons.push({ lessonId, score, completedDate: new Date() });
+    }
+    this.totalScore = this.completedLessons.reduce((sum, c) => sum + c.score, 0);
     this.updateLastActivityDate();
   }
 
